@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/reserva.dart';
+import '../config/api_config.dart'; // Importamos el archivo de configuración de la API
 
 class ReservaScreen extends StatefulWidget {
   final Reserva reserva;
@@ -29,11 +30,13 @@ class _ReservaScreenState extends State<ReservaScreen> {
         _procesando = true;
       });
 
+      // Actualizar datos de la reserva con lo ingresado en los campos
       widget.reserva.nombre = _nombreController.text;
       widget.reserva.telefono = _telefonoController.text;
       widget.reserva.email = _emailController.text;
 
-      final url = Uri.parse("http://localhost:5000/crear_reserva");
+      // Usamos ApiConfig para construir la URL correcta según el entorno
+      final url = Uri.parse(ApiConfig.getApiUrl("crear_reserva"));
 
       try {
         final response = await http.post(

@@ -1,4 +1,8 @@
+// providers/reserva_provider.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 import '../models/reserva.dart';
 
 class ReservaProvider with ChangeNotifier {
@@ -33,14 +37,28 @@ class ReservaProvider with ChangeNotifier {
   }
 
   Future<void> confirmarReserva() async {
-    if (_reservaActual != null) {
-      _reservaActual!.confirmada = true;
-      notifyListeners();
+    if (_reservaActual == null) return;
 
-      // Aquí puedes enviar la reserva al backend vía HTTP POST
-      // Una vez confirmada, limpiar la reserva actual:
-      _reservaActual = null;
-      notifyListeners();
+    try {
+      // Usamos el endpoint configurado para crear reservas
+      final url = Uri.parse(ApiConfig.getApiUrl("crear_reserva"));
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(_reservaActual!.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        // Reserva enviada correctamente.
+        print("Reserva enviada: ${response.body}");
+        _reservaActual = null; // Limpiamos la reserva actual
+        notifyListeners();
+      } else {
+        throw Exception('Error al enviar la reserva: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception("Error al enviar la reserva: $error");
     }
   }
 

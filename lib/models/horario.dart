@@ -1,5 +1,6 @@
 // lib/models/horario.dart
 import 'package:flutter/material.dart';
+import '../config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -26,7 +27,7 @@ class Horario {
     required String sede,
     required String horaFormateada,
   }) async {
-    final url = Uri.parse('http://localhost:5000/marcar_horario_ocupado');
+    final url = Uri.parse(ApiConfig.getApiUrl('marcar_horario_ocupado'));
 
     final response = await http.post(
       url,
@@ -74,8 +75,9 @@ class Horario {
     ];
 
     // Constrúyase la URL para conocer los horarios ocupados.
-    final url = Uri.parse(
-        'http://localhost:5000/horarios_ocupados?fecha=${fecha.toIso8601String().split('T')[0]}&cancha=$canchaId&sede=$sede');
+    final String fechaStr = fecha.toIso8601String().split('T')[0];
+    final url = Uri.parse(ApiConfig.getApiUrl('horarios_ocupados') +
+        '?fecha=$fechaStr&cancha=$canchaId&sede=$sede');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
